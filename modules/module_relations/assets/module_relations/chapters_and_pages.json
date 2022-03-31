@@ -1,0 +1,1 @@
+[{"module_name":"chapters","record_name_singular":"chapter","record_name_plural":"chapters","identifier_column":"chapter_title"},{"module_name":"pages","record_name_singular":"page","record_name_plural":"pages","identifier_column":"id,page_headline "},{"relationship_type":"one to many"}]

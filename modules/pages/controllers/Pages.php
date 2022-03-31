@@ -17,6 +17,8 @@ class Pages extends Trongate {
             $data = $this->_get_data_from_post();
         }
 
+        $data['chapters_options'] = $this->_get_chapters_options($data['chapters_id']);
+
         if (is_numeric($update_id)) {
             $data['headline'] = 'Update Page Record';
             $data['cancel_url'] = BASE_URL.'pages/show/'.$update_id;
@@ -119,6 +121,7 @@ class Pages extends Trongate {
 
                 $update_id = segment(3);
                 $data = $this->_get_data_from_post();
+                $data['chapters_id'] = (is_numeric($data['chapters_id']) ? $data['chapters_id'] : 0);
                 $data['url_string'] = strtolower(url_title($data['page_headline']));
 
                 if (is_numeric($update_id)) {
@@ -231,7 +234,13 @@ class Pages extends Trongate {
     function _get_data_from_post() {
         $data['page_headline'] = post('page_headline', true);
         $data['page_body'] = post('page_body', true);        
+        $data['chapters_id'] = post('chapters_id');
         return $data;
     }
 
+    function _get_chapters_options($selected_key) {
+        $this->module('module_relations');
+        $options = $this->module_relations->_fetch_options($selected_key, 'pages', 'chapters');
+        return $options;
+    }
 }

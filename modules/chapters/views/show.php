@@ -17,7 +17,7 @@
         ?>
     </div>
 </div>
-<div class="two-col">
+<div class="three-col">
     <div class="card">
         <div class="card-heading">
             Chapter Details
@@ -31,6 +31,9 @@
             </div>
         </div>
     </div>
+    
+    <?= Modules::run('module_relations/_draw_summary_panel', 'pages', $token) ?>
+
     <div class="card">
         <div class="card-heading">
             Comments
