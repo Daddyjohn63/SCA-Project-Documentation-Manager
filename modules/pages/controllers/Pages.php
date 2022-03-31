@@ -130,6 +130,7 @@ class Pages extends Trongate {
                     $flash_msg = 'The record was successfully updated';
                 } else {
                     //insert the new record
+                    $data['priority'] = $this->_calc_next_priority($data['chapters_id']);
                     $update_id = $this->model->insert($data, 'pages');
                     $flash_msg = 'The record was successfully created';
                 }
@@ -144,6 +145,17 @@ class Pages extends Trongate {
 
         }
 
+    }
+
+    function _calc_next_priority($chapter_id){
+        //count pages for this chapter and then add one
+        $params['chapter_id'] = $chapter_id;
+        $sql = 'SELECT id FROM pages WHERE chapters_id = :chapter_id';
+        //will return some rows of data.
+        $rows = $this->model->query_bind($sql, $params, 'object');
+        $num_rows=count($rows);
+        $next_priority = $num_rows + 1;
+        return $next_priority;
     }
 
     function submit_delete() {

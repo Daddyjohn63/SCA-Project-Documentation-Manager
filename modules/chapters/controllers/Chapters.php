@@ -126,6 +126,7 @@ class Chapters extends Trongate {
                     $flash_msg = 'The record was successfully updated';
                 } else {
                     //insert the new record
+                    $data['priority'] = $this->_calc_next_priority();
                     $update_id = $this->model->insert($data, 'chapters');
                     $flash_msg = 'The record was successfully created';
                 }
@@ -138,8 +139,14 @@ class Chapters extends Trongate {
                 $this->create();
             }
 
-        }
+        }          
 
+    }
+
+    function _calc_next_priority(){
+        $number_rows = $this->model->count();
+        $next_priority = $number_rows + 1;
+        return $next_priority;
     }
 
     function submit_delete() {
