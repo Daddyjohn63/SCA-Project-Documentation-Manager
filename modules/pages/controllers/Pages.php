@@ -2,7 +2,27 @@
 class Pages extends Trongate {
 
     private $default_limit = 20;
-    private $per_page_options = array(10, 20, 50, 100);    
+    private $per_page_options = array(10, 20, 50, 100); 
+    
+    function _reinc_priorities($chapter_id){
+        //fetch all the pages that belong to this chapter id.
+        $params['chapter_id'] = $chapter_id;
+        $sql = 'SELECT id FROM pages WHERE chapters_id = :chapter_id';
+        //will return some rows of data that have the chapter id
+        $pages = $this->model->query_bind($sql, $params, 'object');
+        //set count to zero
+        $count = 0;
+        foreach($pages as $page) {
+            //count increments by one
+            $count++;
+            //grab the records id so we can target it.
+            $update_id = $page->id;
+            //the data element with a key of 'priority' (which is the column title in the table). Set it to equal the current count.
+            $data['priority'] = $count;
+            //pass in the data and update the DB.
+            $this->model->update($update_id, $data, 'pages');
+        }
+    }
 
     function create() {
         $this->module('trongate_security');
@@ -170,9 +190,16 @@ class Pages extends Trongate {
             $sql = 'delete from trongate_comments where target_table = :module and update_id = :update_id';
             $params['module'] = 'pages';
             $this->model->query_bind($sql, $params);
+            //get the chapter id from the page that is being deleted. we can the pass this below into _reinc_priorities
+            $record_obj = $this->model->get_where($params['update_id']);
+            //get the chapters_id from the object we just created.
+            $chapter_id = $record_obj->chapters_id;
 
             //delete the record
             $this->model->delete($params['update_id'], 'pages');
+
+            //pass in chapter id from above.
+            $this->_reinc_priorities($chapter_id);
 
             //set the flashdata
             $flash_msg = 'The record was successfully deleted';

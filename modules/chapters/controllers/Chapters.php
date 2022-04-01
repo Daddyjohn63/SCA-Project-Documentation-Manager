@@ -4,6 +4,18 @@ class Chapters extends Trongate {
     private $default_limit = 20;
     private $per_page_options = array(10, 20, 50, 100);    
 
+    //reinc priorities when a chapter is deleted.
+    function _reinc_priorities(){
+        $chapters = $this->model->get('id', 'chapters');
+        $count = 0;
+        foreach($chapters as $chapter) {
+            $count++;
+            $update_id = $chapter->id;
+            $data['priority'] = $count;
+            $this->model->update($update_id, $data, 'chapters');
+        }
+    }
+
     function create() {
         $this->module('trongate_security');
         $this->trongate_security->_make_sure_allowed();
@@ -164,6 +176,8 @@ class Chapters extends Trongate {
 
             //delete the record
             $this->model->delete($params['update_id'], 'chapters');
+
+            $this->_reinc_priorities();
 
             //set the flashdata
             $flash_msg = 'The record was successfully deleted';
