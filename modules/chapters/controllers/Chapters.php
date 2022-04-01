@@ -2,7 +2,37 @@
 class Chapters extends Trongate {
 
     private $default_limit = 20;
-    private $per_page_options = array(10, 20, 50, 100);    
+    private $per_page_options = array(10, 20, 50, 100); 
+    
+    function index(){
+        //fetch contents
+        $data['toc_rows'] = $this->_fetch_toc_rows();
+        $data['view_file'] = 'table_of_contents';
+        $this->template('public', $data);
+    }
+
+    function _fetch_toc_rows(){
+        //will get data from chapters and pages tables.
+        $sql = '
+        SELECT
+            chapters.url_string as chapter_url_str,
+            chapters.chapter_title,
+            pages.id as page_id,
+            pages.url_string as page_url_str,
+            pages.page_headline,
+            pages.chapters_id as chapter_id
+        FROM
+            chapters
+        LEFT OUTER JOIN
+            pages
+        ON
+            chapters.id = pages.chapters_id
+        ORDER BY
+            chapters.priority, pages.priority
+        ';
+        $rows = $this->model->query($sql, 'object');
+        return $rows;
+    }
 
     //reinc priorities when a chapter is deleted.
     function _reinc_priorities(){
