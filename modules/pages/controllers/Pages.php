@@ -3,6 +3,79 @@ class Pages extends Trongate {
 
     private $default_limit = 20;
     private $per_page_options = array(10, 20, 50, 100); 
+
+    function display(){
+        //pass in the url segments as parameters, so we can get all info on that page.
+        $params['chapter_url_str'] = segment(3);
+        $params['page_url_str'] = segment(4);
+        //json($params);
+        $sql = 'SELECT
+                    pages.* 
+                FROM
+                    chapters
+                INNER JOIN
+                    pages
+                ON
+                    chapters.id = pages.chapters_id
+                WHERE
+                    chapters.url_string=:chapter_url_str
+                AND
+                    pages.url_string=:page_url_str
+        ';
+        //$rows is all the info we need on this page.
+        $rows = $this->model->query_bind($sql,$params,'object');
+       // json($rows);
+       if(!isset($rows[0])){
+           //not found therefore redirect back to the table of contents
+           redirect('chapters');
+       }
+       //turn the first row into an array.
+       $data = (array)$rows[0];
+       //var_dump($data);
+       $next_prev = $this->_fetch_next_prev($data['id']); //pass in page id.
+       $data['prev_url'] = $next_prev['prev_url'];
+       $data['next_url'] = $next_prev['next_url'];
+       $data['view_file'] = 'display';
+       $this->template('public', $data);
+    }
+
+    function _fetch_next_prev($page_id){
+        $this->module('chapters');
+        //get info an all pages from the DB.
+        $toc_rows = $this->chapters->_fetch_toc_rows();
+       // json($toc_rows);
+       foreach($toc_rows as $key => $toc_row){
+          //json($key);
+           $row_page_id = $toc_row->page_id;
+           if($row_page_id == $page_id){
+               $current_page_key = $key; //prev url would therefore be $key-1 and next url would be $key+1.
+           }
+       }
+      if(isset($toc_rows[$current_page_key-1])){
+          $record_obj = $toc_rows[$current_page_key-1];
+          $chapter_url_str = $record_obj->chapter_url_str;
+          $page_url_str = $record_obj->page_url_str;
+          $prev_url = BASE_URL.'pages/display/'.$chapter_url_str.'/'.$page_url_str;
+         // echo $prev_url; die();
+      } else {
+          $prev_url = 'chapters';
+      }
+
+      if(isset($toc_rows[$current_page_key+1])){
+        $record_obj = $toc_rows[$current_page_key+1];
+        $chapter_url_str = $record_obj->chapter_url_str;
+        $page_url_str = $record_obj->page_url_str;
+        $next_url = BASE_URL.'pages/display/'.$chapter_url_str.'/'.$page_url_str;
+       // echo $prev_url; die();
+    } else {
+        $next_url = 'chapters';
+    }
+
+    $next_prev['prev_url'] = $prev_url;
+    $next_prev['next_url'] = $next_url;
+    return $next_prev;
+
+    }
     
     function _reinc_priorities($chapter_id){
         //fetch all the pages that belong to this chapter id.
