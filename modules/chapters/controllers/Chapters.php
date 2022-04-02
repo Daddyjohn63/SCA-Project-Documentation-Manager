@@ -3,8 +3,26 @@ class Chapters extends Trongate {
 
     private $default_limit = 20;
     private $per_page_options = array(10, 20, 50, 100); 
+
+    function sort(){
+        $this->module('trongate_security');
+        $this->trongate_security->_make_sure_allowed();
+        $data['toc_rows'] = $this->_fetch_toc_rows();
+        $data['view_file'] = 'toc_sortable';
+        $this->template('admin', $data);
+    }
     
     function index(){
+
+        $this->module('trongate_tokens');
+        $token = $this->trongate_tokens->_attempt_get_valid_token(1);
+
+        if($token !== false){
+            //admin intercept.
+            redirect('chapters/sort');
+        }
+
+        //echo($token); die();
         //fetch contents
         $data['toc_rows'] = $this->_fetch_toc_rows();
         $data['view_file'] = 'table_of_contents';

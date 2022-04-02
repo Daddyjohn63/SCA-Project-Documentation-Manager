@@ -25,3 +25,4 @@ KEY LEARNING POINTS.
 
 * using query builder to build sql statement so that we populate the data into the page.
 
+* using array keys to create navigation links from one page to another.
