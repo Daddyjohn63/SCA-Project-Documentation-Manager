@@ -1,4 +1,15 @@
 {
+    "Remember Positions": {
+        "url_segments": "chapters/remember_positions",
+        "request_type": "POST",
+        "description": "Remember dragged chapter positions",
+        "enableParams": true,
+        "authorization":{  
+            "roles": [
+                "admin"
+            ]
+        }
+      },
   "Get": {
     "url_segments": "api/get/chapters",
     "request_type": "GET",

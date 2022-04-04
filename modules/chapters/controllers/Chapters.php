@@ -4,9 +4,27 @@ class Chapters extends Trongate {
     private $default_limit = 20;
     private $per_page_options = array(10, 20, 50, 100); 
 
+    function remember_positions(){
+        api_auth();
+        $post = file_get_contents('php://input');
+        $posted_data = json_decode($post);
+       // json($posted_data);
+       $chapters = $posted_data->chapterPositions;
+
+      // var_dump($chapters);
+      foreach($chapters as $chapter){
+          $chapter_id = $chapter->id;
+          $update_id = str_replace('chapter-','', $chapter_id);
+          $data['priority'] = $chapter->priority;
+          $this->model->update($update_id, $data, 'chapters');
+      }
+      http_response_code(200);
+      echo 'great success';
+    }
+
     function sort(){
         $this->module('trongate_security');
-        $this->trongate_security->_make_sure_allowed();
+        $data['token'] = $this->trongate_security->_make_sure_allowed();
         $data['toc_rows'] = $this->_fetch_toc_rows();
         $data['view_file'] = 'toc_sortable';
         $this->template('admin', $data);
